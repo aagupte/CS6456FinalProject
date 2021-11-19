@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import PencilTool from './components/penciltool';
-import React, { Component, FC, useState } from 'react';
+import React, { Component, FC, useEffect, useState } from 'react';
 import { Input } from 'semantic-ui-react';
 import { Form, TextArea, Button } from 'semantic-ui-react'
 import { ResizableBox } from 'react-resizable';
@@ -9,7 +9,15 @@ import ResizePanel from "react-resize-panel";
 import { Rnd } from 'react-rnd';
 import DraggableList from "react-draggable-lists";
 import Slider from '@mui/material/Slider';
+import Gun from 'gun'
 
+// Gun
+const gun = Gun({
+  peers: [
+    'http://localhost:3030/gun'
+  ]
+})
+// Gun
 
 const listItems = [
   "Entertainment",
@@ -31,12 +39,37 @@ function App() {
       
     </div>
   );
+  const tb1 = gun.get("textbox1")
+  //tb1.put({name: "Enter Text Here"})
 
   const [value, setValue] = React.useState(30);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+
+  // Gun
+  const [textValue, setTextValue] = React.useState("Enter Text Here");
+
+  const textChange = (event, newValue) => {
+    setTextValue(event.target.value.toString());
+    tb1.put({name: event.target.value.toString()})
+    //console.log("1" + event.target.value.toString())
+    //console.log("2" + newValue.value)
+  };
+  
+  tb1.once((data) => {
+    console.log("3")
+    console.log(data.name)
+    setTextValue(data.name)
+  })
+
+  // useEffect(() => {
+  //   console.log("3" + tb1.get('name').value)
+  //   setTextValue(tb1.get('name').value)
+  // }, [])
+  
+  // Gun
 
   return (
     <div className="App">
@@ -58,7 +91,7 @@ function App() {
       <div className="textBox">
         {/* <Input type="text" placeholder="Enter Text Here" style={{width: "370px"}}/> */}
         <Form>
-          <TextArea placeholder="Enter Text Here"></TextArea>
+          <TextArea value = {textValue} onInput = {textChange} placeholder="Enter Text Here"></TextArea>
         </Form>
       </div>
       <div className="buttons">
