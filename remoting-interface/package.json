@@ -13,6 +13,7 @@
     "gun": "^0.2020.1235",
     "react": "^17.0.2",
     "react-beautiful-dnd": "^13.1.0",
+    "react-bootstrap": "^2.0.2",
     "react-dom": "^17.0.2",
     "react-draggable-lists": "^1.0.1",
     "react-resizable": "^3.0.4",

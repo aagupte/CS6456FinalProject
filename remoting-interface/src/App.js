@@ -3,7 +3,8 @@ import './App.css';
 import PencilTool from './components/penciltool';
 import React, { Component, FC, useEffect, useState } from 'react';
 import { Input } from 'semantic-ui-react';
-import { Form, TextArea, Button } from 'semantic-ui-react'
+import { Form as SemForm } from 'semantic-ui-react'
+import { TextArea, Button } from 'semantic-ui-react';
 import { ResizableBox } from 'react-resizable';
 import ResizePanel from "react-resize-panel";
 import { Rnd } from 'react-rnd';
@@ -11,6 +12,48 @@ import DraggableList from "react-draggable-lists";
 import Slider from '@mui/material/Slider';
 import Gun from 'gun'
 import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
+import "./App.css";
+import { Card, Form } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+function Todo({ todo, index, markTodo, removeTodo }) {
+  return (
+    <div
+      className="todo"
+      
+    >
+      <span style={{ textDecoration: todo.isDone ? "line-through" : "" }}>{todo.text}</span>
+      <div>
+        <Button variant="outline-success" onClick={() => markTodo(index)}>✓</Button>{' '}
+        <Button variant="outline-danger" onClick={() => removeTodo(index)}>✕</Button>
+      </div>
+    </div>
+  );
+}
+
+function FormTodo({ addTodo }) {
+  const [value, setValue] = React.useState("");
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    if (!value) return;
+    addTodo(value);
+    setValue("");
+  };
+
+  return (
+    <Form onSubmit={handleSubmit}> 
+    <Form.Group>
+      <Form.Label><b>Add Todo</b></Form.Label>
+      <Form.Control type="text" className="input" value={value} onChange={e => setValue(e.target.value)} placeholder="Add new todo" />
+    </Form.Group>
+    <Button variant="primary mb-3" type="submit">
+      Submit
+    </Button>
+  </Form>
+  );
+}
+
 
 // Gun
 const gun = Gun({
@@ -22,19 +65,44 @@ const gun = Gun({
 
 
 
-const listItems = [
-  "Class Projects",
-  "Homework",
-  "Presentation",
-  "Coding Project",
-  "Studying",
-  "Final Assignment",
-  "Home Projects",
-  "Personal"
-];
+// const listItems = [
+//   "Class Projects",
+//   "Homework",
+//   "Presentation",
+//   "Coding Project",
+//   "Studying",
+//   "Final Assignment",
+//   "Home Projects",
+//   "Personal"
+// ];
 
 function App() {
   // setTimeout()
+  const [todos, setTodos] = React.useState([
+    {
+      text: "Final Presentation",
+      isDone: false
+    }
+  ]);
+
+  const addTodo = text => {
+    const newTodos = [...todos, { text }];
+    todo.put({list: newTodos});
+    setTodos(newTodos);
+  };
+
+  const markTodo = index => {
+    const newTodos = [...todos];
+    newTodos[index].isDone = true;
+    setTodos(newTodos);
+  };
+
+  const removeTodo = index => {
+    const newTodos = [...todos];
+    newTodos.splice(index, 1);
+    todo.put({list: newTodos});
+    setTodos(newTodos);
+  };
 
   const Box = () => (
     <div
@@ -49,7 +117,7 @@ function App() {
   const buttons = gun.get("buttons")
   const vol = gun.get("volume")
   const lis = gun.get("list")
-  
+  const todo = gun.get("todo")
 
   
 
@@ -80,6 +148,14 @@ function App() {
       else
         setValue(data.volume);
     })
+
+    todo.once((data) => {
+      if(data == undefined)
+        setTodos(todos);
+      else
+        setTodos(data.list);
+    })
+    
 
     tb1.once((data) => {
       // console.log("3")
@@ -148,7 +224,7 @@ function App() {
   // }
 
   useEffect(() => {
-    setInterval(function(){ update(); }, 200);
+    setInterval(function(){ update(); }, 2000);
     
 
   }, [])
@@ -172,9 +248,9 @@ function App() {
     <div className="App">
       <header className = "App-header">Remote Interface Test Environment</header>
       <div className="textBox">
-        <Form>
+        <SemForm>
           <TextArea value = {textValue} onInput = {textChange} placeholder="Enter Text Here"></TextArea>
-        </Form>
+        </SemForm>
       </div>
         <div className="row2">
           <div className="buttons">
@@ -197,11 +273,29 @@ function App() {
               
         </div>
       <div className = "list" style={{ width: 300, margin: "0 auto" }}>
-            <DraggableList value={list} onChange={draggedChange} width={300} height={50} rowSize={1}>
+            {/* <DraggableList value={list} onChange={draggedChange} width={300} height={50} rowSize={1}>
                     {list.map((item, index) => (
                       <li key={index}>{`${index + 1}.  ${item}`}</li>
                     ))}
-                </DraggableList>
+                </DraggableList> */}
+
+            <h1 className="text-center mb-4">Todo List</h1>
+                    <FormTodo addTodo={addTodo} />
+                    <div>
+                      {todos.map((todo, index) => (
+                        <Card>
+                          <Card.Body>
+                            <Todo
+                            key={index}
+                            index={index}
+                            todo={todo}
+                            markTodo={markTodo}
+                            removeTodo={removeTodo}
+                            />
+                          </Card.Body>
+                        </Card>
+                      ))}
+                    </div>
           </div>
       
       
