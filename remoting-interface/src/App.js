@@ -10,6 +10,7 @@ import { Rnd } from 'react-rnd';
 import DraggableList from "react-draggable-lists";
 import Slider from '@mui/material/Slider';
 import Gun from 'gun'
+import useEnhancedEffect from '@mui/utils/useEnhancedEffect';
 
 // Gun
 const gun = Gun({
@@ -33,7 +34,7 @@ const listItems = [
 ];
 
 function App() {
-  // setInterval(function(){ window.location.reload(false); }, 10000);
+  // setTimeout()
 
   const Box = () => (
     <div
@@ -47,8 +48,7 @@ function App() {
   const tb1 = gun.get("textbox1")
   const buttons = gun.get("buttons")
   const vol = gun.get("volume")
-  
-
+  const lis = gun.get("list")
   
 
   
@@ -57,67 +57,109 @@ function App() {
   const [textValue, setTextValue] = React.useState("Enter Text Here");
   const [clicked, setClicked] = React.useState({button1: false, button2: false, button3: false, button4: false, button5: false});
   const [value, setValue] = React.useState(30);
+  const [list, setList] = React.useState([
+    "Class Projects",
+    "Homework",
+    "Presentation",
+    "Coding Project",
+    "Studying",
+    "Final Assignment",
+    "Home Projects",
+    "Personal"
+  ]);
 
   const textChange = (event, newValue) => {
     setTextValue(event.target.value.toString());
     tb1.put({name: event.target.value.toString()})
   };
 
+  const update = () => {
+    vol.once((data) => {
+      if(data == undefined)
+        setValue(value);
+      else
+        setValue(data.volume);
+    })
+
+    tb1.once((data) => {
+      // console.log("3")
+      // console.log(data.name)
+      setTextValue(data.name)
+    })
+
+    buttons.once((data) => {
+      var flag1 = false;
+      var flag2 = false;
+      var flag3 = false;
+      var flag4 = false;
+      var flag5 = false;
+  
+      if(data == undefined) {
+        setClicked(clicked);
+      } else {
+          if(data.button1 == null)
+            data.button1 = flag1;
+          if(data.button2 == null)
+            data.button2 = flag2;
+          if(data.button3 == null)
+            data.button3 = flag3; 
+          if(data.button4 == null)
+            data.button4 = flag4;
+          if(data.button5 == null)
+            data.button5 = flag5;
+  
+          setClicked( {button1: data.button1, button2: data.button2, button3: data.button3, button4: data.button4, button5: data.button5} )
+      }
+  
+      
+    })
+
+    lis.once((data) => {
+      if(data == undefined)
+        setList(list);
+      else 
+        setList(data.list);
+    })
+  };
+
   const syncButton = (id) => {
-    var selected = buttons.get('button' + id);
-    // if(selected == true)
-    //   selected.put(false);
-    // else
-    selected.put(true);
+    var selected = buttons.get("button" + id);
+    var button_state = clicked['button' + id];
+    if(button_state == true) {
+      selected.put(false);
+    } else {
+      selected.put(true);
+    }
+    setClicked({...clicked, ['button' + id]: !clicked['button' + id]});
   };
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
-    // vol.put(newValue);
+    vol.put({volume: newValue});
+  };
+
+  const draggedChange = (event, newList) => {
+    setList(newList);
+    list.put({list: newList});
   };
 
   // const buttonClicked = (event) => {
   //   setClicked(event.)
   // }
-  vol.once((data) => {
-    if(data == undefined)
-      setValue(value);
-    else
-      setValue(data)
-  })
 
-  tb1.once((data) => {
-    // console.log("3")
-    // console.log(data.name)
-    setTextValue(data.name)
-  })
-
-  buttons.once((data) => {
-    var flag1 = false;
-    var flag2 = false;
-    var flag3 = false;
-    var flag4 = false;
-    var flag5 = false;
-
-    if(data == undefined) {
-      setClicked(clicked);
-    } else {
-        if(data.button1 == null)
-          data.button1 = flag1;
-        if(data.button2 == null)
-          data.button2 = flag2;
-        if(data.button3 == null)
-          data.button3 = flag3; 
-        if(data.button4 == null)
-          data.button4 = flag4;
-        if(data.button5 == null)
-          data.button5 = flag5;
-
-        setClicked( {button1: data.button1, button2: data.button2, button3: data.button3, button4: data.button4, button5: data.button5} )
-    }
-
+  useEffect(() => {
+    setInterval(function(){ update(); }, 200);
     
-  })
+
+  }, [])
+
+  
+
+  
+
+  
+
+  
 
   // useEffect(() => {
   //   console.log("3" + tb1.get('name').value)
@@ -155,8 +197,8 @@ function App() {
               
         </div>
       <div className = "list" style={{ width: 300, margin: "0 auto" }}>
-            <DraggableList width={300} height={50} rowSize={1}>
-                    {listItems.map((item, index) => (
+            <DraggableList value={list} onChange={draggedChange} width={300} height={50} rowSize={1}>
+                    {list.map((item, index) => (
                       <li key={index}>{`${index + 1}.  ${item}`}</li>
                     ))}
                 </DraggableList>
