@@ -19,18 +19,22 @@ const gun = Gun({
 })
 // Gun
 
+
+
 const listItems = [
-  "Entertainment",
-  "Private Time",
-  "Rest",
-  "Meal",
-  "Exercise",
-  "Work",
+  "Class Projects",
+  "Homework",
+  "Presentation",
+  "Coding Project",
+  "Studying",
+  "Final Assignment",
   "Home Projects",
-  "Family"
+  "Personal"
 ];
 
 function App() {
+  // setInterval(function(){ window.location.reload(false); }, 10000);
+
   const Box = () => (
     <div
       className="box"
@@ -39,29 +43,80 @@ function App() {
       
     </div>
   );
+
   const tb1 = gun.get("textbox1")
-  //tb1.put({name: "Enter Text Here"})
+  const buttons = gun.get("buttons")
+  const vol = gun.get("volume")
+  
 
-  const [value, setValue] = React.useState(30);
+  
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  
 
   // Gun
   const [textValue, setTextValue] = React.useState("Enter Text Here");
+  const [clicked, setClicked] = React.useState({button1: false, button2: false, button3: false, button4: false, button5: false});
+  const [value, setValue] = React.useState(30);
 
   const textChange = (event, newValue) => {
     setTextValue(event.target.value.toString());
     tb1.put({name: event.target.value.toString()})
-    //console.log("1" + event.target.value.toString())
-    //console.log("2" + newValue.value)
   };
-  
+
+  const syncButton = (id) => {
+    var selected = buttons.get('button' + id);
+    // if(selected == true)
+    //   selected.put(false);
+    // else
+    selected.put(true);
+  };
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+    // vol.put(newValue);
+  };
+
+  // const buttonClicked = (event) => {
+  //   setClicked(event.)
+  // }
+  vol.once((data) => {
+    if(data == undefined)
+      setValue(value);
+    else
+      setValue(data)
+  })
+
   tb1.once((data) => {
-    console.log("3")
-    console.log(data.name)
+    // console.log("3")
+    // console.log(data.name)
     setTextValue(data.name)
+  })
+
+  buttons.once((data) => {
+    var flag1 = false;
+    var flag2 = false;
+    var flag3 = false;
+    var flag4 = false;
+    var flag5 = false;
+
+    if(data == undefined) {
+      setClicked(clicked);
+    } else {
+        if(data.button1 == null)
+          data.button1 = flag1;
+        if(data.button2 == null)
+          data.button2 = flag2;
+        if(data.button3 == null)
+          data.button3 = flag3; 
+        if(data.button4 == null)
+          data.button4 = flag4;
+        if(data.button5 == null)
+          data.button5 = flag5;
+
+        setClicked( {button1: data.button1, button2: data.button2, button3: data.button3, button4: data.button4, button5: data.button5} )
+    }
+
+    
   })
 
   // useEffect(() => {
@@ -73,73 +128,51 @@ function App() {
 
   return (
     <div className="App">
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
-
+      <header className = "App-header">Remote Interface Test Environment</header>
       <div className="textBox">
-        {/* <Input type="text" placeholder="Enter Text Here" style={{width: "370px"}}/> */}
         <Form>
           <TextArea value = {textValue} onInput = {textChange} placeholder="Enter Text Here"></TextArea>
         </Form>
       </div>
-      <div className="buttons">
-        <div className="button1">
-          <Button>#1</Button>
+        <div className="row2">
+          <div className="buttons">
+            <div className="button1">
+              <Button className="1" active={clicked.button1} onClick = {() => syncButton(1)}>#1</Button>
+            </div>
+            <div className="button2">
+              <Button className="2" active={clicked.button2} onClick = {() => syncButton(2)}>#2</Button>
+            </div>
+            <div className="button3">
+              <Button className="3" active={clicked.button3} onClick = {() => syncButton(3)}>#3</Button>
+            </div>
+            <div className="button4">
+              <Button className="4" active={clicked.button4} onClick = {() => syncButton(4)}>#4</Button>
+            </div>
+            <div className="button5">
+              <Button className="5" active={clicked.button5} onClick = {() => syncButton(5)}>#5</Button>
+            </div>
+
+              
         </div>
-        <div className="button2">
-          <Button>#2</Button>
-        </div>
-        <div className="button3">
-          <Button>#3</Button>
-        </div>
-        <div className="button4">
-          <Button>#4</Button>
-        </div>
-        <div className="button5">
-          <Button>#5</Button>
-        </div>
-        {/* <div className="resizableBox">
-          <ResizePanel direction='s' style={{backgroundColor: 'black', height: '50%'}}>
-            <div style={{backgroundColor: 'blue', height: '100%'}}>panel</div>
-          </ResizePanel>
-        </div>
-        <div class="wrap">
-          <div class="resize both">Resize me!</div>
-        </div> */}
-        <div 
-        style={{
-          width: '800px',
-          height: '400px',
-        }}
-      >
-        <Rnd className="moveBox"
-          
-        >
-          <Box />
-        </Rnd>
-      </div>  
-      <div style={{ width: 300, margin: "0 auto" }}>
-        <DraggableList width={300} height={50} rowSize={1}>
-                {listItems.map((item, index) => (
-                  <li key={index}>{`${index + 1}.  ${item}`}</li>
-                ))}
-            </DraggableList>
+      <div className = "list" style={{ width: 300, margin: "0 auto" }}>
+            <DraggableList width={300} height={50} rowSize={1}>
+                    {listItems.map((item, index) => (
+                      <li key={index}>{`${index + 1}.  ${item}`}</li>
+                    ))}
+                </DraggableList>
+          </div>
+      
+      
+      
+      <div>
+        {/* <Slider aria-label="Volume" value={value} onChange={handleChange} /> */}
+        <Slider aria-level="Volume" value={value} onChange={handleChange}></Slider>
       </div>
       <div>
-        <Slider aria-label="Volume" value={value} onChange={handleChange} />
-      </div>
+        <Rnd className="moveBox">
+          <Box />
+        </Rnd>
+          </div>
       <div className="whiteboard">
         <PencilTool />
       </div>

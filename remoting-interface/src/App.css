@@ -35,24 +35,32 @@
   box-sizing: border-box;
 }
 
+.buttons {
+  float: left;
+}
+
+.list {
+  float: right;
+}
+
 .button1 {
   padding: 5px;
 }
 
 .button2{
-  padding: 20px;
+  padding: 5px;
 }
 
 .button3 {
-  padding: 20px;
+  padding: 5px;
 }
 
 .button4 {
-  padding: 20px;
+  padding: 5px;
 }
 
 .button5 {
-  padding: 20px;
+  padding: 5px;
 }
 
 .textBox {
@@ -77,10 +85,11 @@
   max-width: 80%;
 }
 .moveBox {
-  width: 300px;
+  width: 100px;
   border: 2px solid black;
-  padding: 50px;
-  margin: 20px;
+  padding: 100px;
+  margin: 800px;
+  float: right;
 }
 
 li {
